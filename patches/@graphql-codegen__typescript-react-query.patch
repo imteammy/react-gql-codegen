@@ -1,0 +1,48 @@
+diff --git a/cjs/fetcher.js b/cjs/fetcher.js
+index 8f65fdea367f00a1e047e932baddf260df35e258..5f2d9e705c258e0b0639966e16376c02074868fd 100644
+--- a/cjs/fetcher.js
++++ b/cjs/fetcher.js
+@@ -73,10 +73,11 @@ class FetcherRenderer {
+             return `export const ${query.getHook(operationName)} = <
+       TData = ${operationResultType},
+       TError = ${this.visitor.config.errorType}
+-    >(${argumentsResult}) => {
++    >(${argumentsResult},client?: QueryClient) => {
+     ${implHookOuter}
+     return ${query.getHook()}<${operationResultType}, TError, TData>(
+-      ${this.generateQueryFormattedParameters(this.generateQueryKey(config, isSuspense), implFetcher)}
++      ${this.generateQueryFormattedParameters(this.generateQueryKey(config, isSuspense), implFetcher)},
++      client
+     )};`;
+         };
+         return {
+@@ -118,7 +119,7 @@ class FetcherRenderer {
+         if (this.visitor.config.reactQueryVersion <= 4) {
+             return `options?: ${query.getOptions()}<${operationResultType}, TError, TData>`;
+         }
+-        return `options?: Omit<${query.getOptions()}<${operationResultType}, TError, TData>, 'queryKey'> & { queryKey?: ${query.getOptions()}<${operationResultType}, TError, TData>['queryKey'] }`;
++        return `options?: Prettyfy<Omit<${query.getOptions()}<${operationResultType}, TError, TData>, 'queryKey'> & { queryKey?: ${query.getOptions()}<${operationResultType}, TError, TData>['queryKey'] }>`;
+     }
+     generateInfiniteQueryVariablesSignature(config) {
+         if (this.visitor.config.reactQueryVersion <= 4) {
+@@ -131,7 +132,7 @@ class FetcherRenderer {
+         if (this.visitor.config.reactQueryVersion <= 4) {
+             return `options?: ${infiniteQuery.getOptions()}<${operationResultType}, TError, TData>`;
+         }
+-        return `options: Omit<${infiniteQuery.getOptions()}<${operationResultType}, TError, TData>, 'queryKey'> & { queryKey?: ${infiniteQuery.getOptions()}<${operationResultType}, TError, TData>['queryKey'] }`;
++        return `options: Prettyfy<Omit<${infiniteQuery.getOptions()}<${operationResultType}, TError, TData>, 'queryKey'> & { queryKey?: ${infiniteQuery.getOptions()}<${operationResultType}, TError, TData>['queryKey'] }>`;
+     }
+     generateInfiniteQueryKey(config, isSuspense) {
+         const identifier = isSuspense ? 'infiniteSuspense' : 'infinite';
+diff --git a/cjs/visitor.js b/cjs/visitor.js
+index 660e876d5d89aefa6f0c16b7a741e04f84888aa4..92e0bb4728b8d410f3fb8171925d14b2d0b78d5b 100644
+--- a/cjs/visitor.js
++++ b/cjs/visitor.js
+@@ -61,6 +61,7 @@ class ReactQueryVisitor extends visitor_plugin_common_1.ClientSideBaseVisitor {
+         const hookAndTypeImports = [
+             ...Array.from(this.reactQueryHookIdentifiersInUse),
+             ...Array.from(this.reactQueryOptionsIdentifiersInUse).map(identifier => `${this.config.useTypeImports ? 'type ' : ''}${identifier}`),
++            "QueryClient"
+         ];
+         const moduleName = this.config.reactQueryImportFrom
+             ? this.config.reactQueryImportFrom

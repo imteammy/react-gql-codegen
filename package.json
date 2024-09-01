@@ -1,0 +1,47 @@
+{
+    "name": "react-gql-codegen",
+    "version": "1.0.0",
+    "description": "",
+    "main": "./src/server/index.ts",
+    "scripts": {
+        "serv": "nodemon ./src/server/server.ts",
+        "getSchema": "npx get-graphql-schema http://localhost:5555 > ./src/web/src/shared/gqlgen/generated/schema.graphql",
+        "patchSchema": "npx gqlg --schemaFilePath ./src/web/src/shared/gqlgen/generated/schema.graphql --destDirPath ./src/web/src/shared/gqlgen/generated/",
+        "genType": "gql-gen --config codegen.ts",
+        "fix": "bun run fix.ts",
+        "fix-end": "bun run fix-end.ts",
+        "prettify": "prettier --write './src/**/*.{ts,tsx}' './src/**/*.graphql' './src/**/*.gql'",
+        "generate": "bun getSchema &&  bun patchSchema && bun fix  && bun genType && bun fix-end && bun prettify"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "@graphql-codegen/cli": "^5.0.2",
+        "@graphql-codegen/fragment-matcher": "^5.0.2",
+        "@graphql-codegen/introspection": "^4.0.3",
+        "@graphql-codegen/typescript-graphql-request": "^6.2.0",
+        "@graphql-codegen/typescript-operations": "^4.2.3",
+        "@graphql-codegen/typescript-react-apollo": "^4.3.0",
+        "@tanstack/react-query": "^5.53.1",
+        "@types/react": "^18.3.5",
+        "express": "^4.19.2",
+        "fs-extra": "^11.2.0",
+        "nodemon": "^3.1.4",
+        "prettier": "^3.3.3",
+        "reflect-metadata": "^0.2.2",
+        "tiny-replace-files": "^1.0.2",
+        "type-graphql": "2.0.0-rc.2"
+    },
+    "dependencies": {
+        "@graphql-codegen/typescript-react-query": "^6.1.0",
+        "apollo-server": "^3.13.0",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.5.4"
+    },
+    "pnpm": {
+        "patchedDependencies": {
+            "@graphql-codegen/typescript-react-query": "patches/@graphql-codegen__typescript-react-query.patch"
+        }
+    }
+}

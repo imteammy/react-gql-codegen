@@ -1,0 +1,17 @@
+overwride: true
+schema: "http://localhost:5555"
+documents: ./srcgqlgen/generated/**/**.gql
+
+generates:
+  src/types.ts:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-react-query"
+      # - "typescript-react-apollo"
+    config:
+      withHooks: true
+      reactQueryVersion: 5
+      fetcher: 'graphql-request'
+
+
